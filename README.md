@@ -7,8 +7,7 @@ probably the most simplified PNG loading method I can imagine.
 ### API ###
 This is the whole API:
 
-```
-#!c++
+```cpp
 // namespace puzniakowski::png
 class pngimage_t {
 public:
