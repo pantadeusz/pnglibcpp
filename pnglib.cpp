@@ -1,11 +1,13 @@
+/**
+Tadeusz Puźnikowski 2017
+*/
+
+
 /*
  * Code inspired by ( 2002-2010 ) Guillaume Cottenceau.
  * http://zarb.org/~gc/html/libpng.html
  */
 
-/**
-Tadeusz Puźnikowski 2017
-*/
 #include <pnglib.hpp>
 
 #include <png.h>
