@@ -32,6 +32,17 @@ unsigned char &pngimage_t::getI(int x, int y, int p) {
 	return data[(y*width+x)*bpp+p];
 }
 
+
+void rdfis_f(png_structp png_ptr, png_bytep outBytes, png_size_t byteCountToRead){
+    std::pair<size_t *, std::vector<unsigned char> *> &io_data_p =
+    *(std::pair<size_t *, std::vector<unsigned char> * > *) png_get_io_ptr(png_ptr);
+    size_t &filePointer = *io_data_p.first;
+    std::vector<unsigned char> &file_contents = *io_data_p.second;
+    for (int i = filePointer; (i < filePointer+byteCountToRead) && (i < file_contents.size()); i++,outBytes++)
+        *outBytes = file_contents[i];
+    filePointer+=byteCountToRead;
+};
+
 pngimage_t read_png_file(const std::vector<unsigned char> &file_contents_) {
     std::vector<unsigned char> file_contents = file_contents_;
     png_infop info_ptr;
@@ -48,15 +59,6 @@ pngimage_t read_png_file(const std::vector<unsigned char> &file_contents_) {
     info_ptr = png_create_info_struct(png_ptr);
     if (!info_ptr) throw std::runtime_error( "png_create_info_struct" );
 
-    auto rdfis_f = [&](png_structp png_ptr, png_bytep outBytes, png_size_t byteCountToRead) -> void {
-        std::pair<size_t *, std::vector<unsigned char> *> &io_data_p =
-        *(std::pair<size_t *, std::vector<unsigned char> * > *) png_get_io_ptr(png_ptr);
-        size_t &filePointer = *io_data_p.first;
-        std::vector<unsigned char> &file_contents = *io_data_p.second;
-        for (int i = filePointer; (i < filePointer+byteCountToRead) && (i < file_contents.size()); i++,outBytes++)
-            *outBytes = file_contents[i];
-        filePointer+=byteCountToRead;
-    };
     std::pair<size_t*, std::vector<unsigned char>* > io_data_p = {&filePointer, &file_contents};
     png_set_read_fn(png_ptr, &io_data_p, (png_rw_ptr)rdfis_f);
 
