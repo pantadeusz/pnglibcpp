@@ -1,4 +1,4 @@
-all:
+all: tests
 
 pnglib.o: pnglib.cpp
 	g++ -ggdb -I. -std=c++0x pnglib.cpp -c
@@ -13,4 +13,6 @@ unit_pnglib:unit_pnglib.o pnglib.o
 tests:unit_pnglib
 	./unit_pnglib
 
+clean:
+	rm -f unit_pnglib *.o b.png
 

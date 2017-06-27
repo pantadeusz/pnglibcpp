@@ -2,39 +2,74 @@
 
 #define CATCH_CONFIG_MAIN
 #include <catch.hpp>
+#include <cstdio>
 
 using namespace puzniakowski::png;
 
-TEST_CASE( "Factorials are computed", "[factorial]" ) {
-    std::vector<unsigned char> file_contents;
-    {
-        // the following 7 lines is based on stack-overflow article
-        std::ifstream file("a.png");
-        if (!file.eof() && !file.fail())
-        {
-            file.seekg(0, std::ios_base::end);
-            std::streampos fileSize = file.tellg();
-            file_contents.resize(fileSize);
+TEST_CASE( "File IO", "[pnglib][read_png_file][write_png_file]" ) {
+    pngimage_t r = read_png_file("a.png");
+    write_png_file("b.png",r);
 
-            file.seekg(0, std::ios_base::beg);
-            file.read((char*)&file_contents[0], fileSize);
+    SECTION("file written must be identical to file read") {
+        pngimage_t r2 = read_png_file("b.png");
+        int diffs = 0;
+        for (int x = 0; x < r.width; x++) {
+            for (int y = 0; y < r.height; y++) {
+                diffs += (r.get(x,y) == r2.get(x,y))?0:1;
+            }
         }
+        REQUIRE(diffs == 0);
     }
 
-    auto r = read_png_file(file_contents);
+    SECTION("reading using raw data") {
+        std::vector<char> file_contents;
+        std::ifstream file("b.png");
+        file.seekg(0, std::ios_base::end);
+        file_contents.resize(file.tellg());
+        file.seekg(0, std::ios_base::beg);
+        file.read(file_contents.data(), file_contents.size());
+
+        auto rf = read_png_file(file_contents);
+        int diffs = 0;
+        for (int x = 0; x < r.width; x++) {
+            for (int y = 0; y < r.height; y++) {
+                diffs += (r.get(x,y) == rf.get(x,y))?0:1;
+            }
+        }
+        REQUIRE(diffs == 0);
+    }
+    SECTION("writing using raw data") {
+
+        auto rf = read_png_file("b.png");
+        std::vector<unsigned char> data_to_write = write_png_file( rf );
+        
+        std::ofstream f("b.png", std::ios::out | std::ofstream::binary);
+        std::copy(data_to_write.begin(), data_to_write.end(), std::ostreambuf_iterator<char>(f));
+        f.close();
+        rf = read_png_file("b.png");
+        int diffs = 0;
+        for (int x = 0; x < r.width; x++) {
+            for (int y = 0; y < r.height; y++) {
+                diffs += (r.get(x,y) == rf.get(x,y))?0:1;
+            }
+        } 
+        REQUIRE(diffs == 0);
+    }
+
+
+    std::remove("b.png"); 
+}
+TEST_CASE( "Data accessing methods", "[pnglib][get][set]" ) {
+    auto r = read_png_file("a.png");
+    
     REQUIRE(r.getI(32,2,r.A) == 0);
+    REQUIRE(r.get(32,2) == 0x3789e2);
     for (int x = 0; x < r.width; x+=2) {
         for (int y = 0; y < r.height; y+=2) {
             r.getI(x,y,r.A) = 255;
         }
     }
-    std::vector<unsigned char> data_to_write = write_png_file( r);
-
-    std::ofstream f("b.png", std::ios::out | std::ofstream::binary);
-    std::copy(data_to_write.begin(), data_to_write.end(), std::ostreambuf_iterator<char>(f));
-
-    
+    REQUIRE(r.get(32,2) == 0xff3789e2);
 }
-
 
 

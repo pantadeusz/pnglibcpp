@@ -4,6 +4,8 @@
 Tadeusz Puźnikowski 2017
 */
 #include <vector>
+#include <string>
+
 
 namespace puzniakowski {
 namespace png {
@@ -21,7 +23,19 @@ public:
     int bpp; ///< bajtow na piksel
     std::vector < unsigned char > data; ///< piksele
     
+    /**
+     * returns the whole pixel value.
+     */
     unsigned int get(int x, int y);
+
+    /**
+     * set pixel value
+     */
+    void set(int x, int y, unsigned int c);
+
+    /**
+     * get the pixel value of given channel.
+     */
     unsigned char &getI(int x, int y, int p);
 };
 
@@ -30,12 +44,15 @@ public:
  * @arg file_contents_ the bytes read that represents PNG file
  * */
 pngimage_t read_png_file(const std::vector<unsigned char> &file_contents_);
+pngimage_t read_png_file(const std::vector<char> &file_contents_);
+pngimage_t read_png_file (const std::string &file_name_);
 
 /**
  * Writes data to PNG buffer
  * @return the raw PNG data
  * */
 std::vector<unsigned char> write_png_file( const pngimage_t &image_);
+void write_png_file( const std::string &file_name_, const pngimage_t &image_ );
 
 }
 }

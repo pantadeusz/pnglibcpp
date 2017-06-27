@@ -23,16 +23,36 @@ Tadeusz Puźnikowski 2017
 
 namespace puzniakowski {
 namespace png {
+
 unsigned int pngimage_t::get(int x, int y) {
-        if (bpp == 3) return ((unsigned int)data[(y*width+x)*bpp])+((unsigned int)data[(y*width+x)*bpp+1]<<8) + ((unsigned int)data[(y*width+x+2)*bpp]<<16);
-        return ((unsigned int)data[(y*width+x)*bpp])+((unsigned int)data[(y*width+x)*bpp+1]<<8) + ((unsigned int)data[(y*width+x+2)*bpp]<<16) + ((unsigned int)data[(y*width+x+2)*bpp]<<24);
+        if (bpp == 3) return 
+               ((unsigned int)data[(y*width+x)*bpp])+
+               ((unsigned int)data[(y*width+x)*bpp+1]<<8) + 
+               ((unsigned int)data[(y*width+x)*bpp+2]<<16);
+        return ((unsigned int)data[(y*width+x)*bpp])+
+               ((unsigned int)data[(y*width+x)*bpp+1]<<8) + 
+               ((unsigned int)data[(y*width+x)*bpp+2]<<16) + 
+               ((unsigned int)data[(y*width+x)*bpp+3]<<24);
+}
+
+void pngimage_t::set(int x, int y, unsigned int c) {
+        data[(y*width+x)*bpp] = c & 0x0ff;
+        data[(y*width+x)*bpp+1] = (c >> 8 ) & 0x0ff;
+        data[(y*width+x)*bpp+2] = (c >>16) & 0x0ff;
+        if (bpp == 4) {
+            data[(y*width+x)*bpp+3] = (c >>16) & 0x0ff;
+        }
 }
 
 unsigned char &pngimage_t::getI(int x, int y, int p) {
 	return data[(y*width+x)*bpp+p];
 }
 
-
+/**
+ * Callback function for png library. This function feeds data from stream.
+ * The pointer is of type std::pair<size_t *, std::vector<unsigned char> *> and it 
+ * holds information about data read count, and the data itself
+ */
 void rdfis_f(png_structp png_ptr, png_bytep outBytes, png_size_t byteCountToRead){
     std::pair<size_t *, std::vector<unsigned char> *> &io_data_p =
     *(std::pair<size_t *, std::vector<unsigned char> * > *) png_get_io_ptr(png_ptr);
@@ -42,6 +62,12 @@ void rdfis_f(png_structp png_ptr, png_bytep outBytes, png_size_t byteCountToRead
         *outBytes = file_contents[i];
     filePointer+=byteCountToRead;
 };
+
+pngimage_t read_png_file(const std::vector<char> &file_contents_) {
+    std::vector<unsigned char> fc;fc.reserve(file_contents_.size());
+    for (auto c: file_contents_) fc.push_back(c);
+    return read_png_file(fc);
+}
 
 pngimage_t read_png_file(const std::vector<unsigned char> &file_contents_) {
     std::vector<unsigned char> file_contents = file_contents_;
@@ -130,6 +156,25 @@ std::vector<unsigned char> write_png_file( const pngimage_t &image_) {
     png_destroy_write_struct(&png_ptr, &info_ptr);
     return file_content;
 }
+
+
+
+pngimage_t read_png_file (const std::string &fn)  {
+        std::vector<char> file_contents;
+        std::ifstream file(fn);
+        file.seekg(0, std::ios_base::end);
+        file_contents.resize(file.tellg());
+        file.seekg(0, std::ios_base::beg);
+        file.read(file_contents.data(), file_contents.size());
+        return read_png_file(file_contents);
+}
+
+void write_png_file( const std::string &filename_, const pngimage_t &image_ ) {
+    std::vector<unsigned char> data_to_write = write_png_file( image_ );
+    std::ofstream f(filename_, std::ios::out | std::ofstream::binary);
+    std::copy(data_to_write.begin(), data_to_write.end(), std::ostreambuf_iterator<char>(f));
+}
+
 }}
 
 
