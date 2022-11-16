@@ -175,6 +175,15 @@ void write_png_file( const std::string &filename_, const pngimage_t &image_ ) {
     std::copy(data_to_write.begin(), data_to_write.end(), std::ostreambuf_iterator<char>(f));
 }
 
+unsigned int getColor(int8_t r, int8_t g, int8_t b, int8_t a){
+    unsigned int color = 0b0;
+    color|=((unsigned)r << (8*0));
+    color|=((unsigned)g << (8*1));
+    color|=((unsigned)b << (8*2));
+    color|=((unsigned)a << (8*3));
+    return color;
+}
+
 }}
 
 

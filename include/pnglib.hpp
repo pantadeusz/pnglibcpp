@@ -53,6 +53,7 @@ pngimage_t read_png_file (const std::string &file_name_);
  * */
 std::vector<unsigned char> write_png_file( const pngimage_t &image_);
 void write_png_file( const std::string &file_name_, const pngimage_t &image_ );
+unsigned int getColor(int8_t r, int8_t g, int8_t b, int8_t a);
 
 }
 }
