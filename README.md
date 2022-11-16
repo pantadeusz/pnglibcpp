@@ -4,6 +4,12 @@ This is verry small library that depends only on libpng. It allows you
 to load and save PNG files data represented as vector of chars. It is
 probably the most simplified PNG loading method I can imagine.
 
+## Usage
+
+### Example ###
+
+You can build simple example using `make example`
+
 ### API ###
 This is the basic API:
 
@@ -30,6 +36,8 @@ public:
 
     // returns color channel value
     unsigned char &getI(int x, int y, int p);
+    // returns value which you can pass as argument c of set function
+    unsigned int getColor(int8_t r, int8_t g, int8_t b, int8_t a);
 };
 
 pngimage_t read_png_file(const std::vector<unsigned char> &file_contents_);
@@ -39,5 +47,9 @@ std::vector<unsigned char> write_png_file( const pngimage_t &image_);
 void write_png_file( const std::string &file_name_, const pngimage_t &image_);
 
 ```
+
+### Tests ###
+
+At file unit_pnglib.cpp
 
 (C) Tadeusz Puźniakowski, 2017
