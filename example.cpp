@@ -8,8 +8,12 @@ int main(){
     im = read_png_file("data/a.png");
     for (int i=0;i<im.width;i++){
         for (int j=0;j<im.height;j++){
-            //set color to R = 0, G = 255, B = 255, A = 0
-            unsigned int color = getColor(0,255,255,0);
+            //Convert image to greyscale
+            unsigned int color = im.get(i,j);
+            int8_t r,g,b,a,middle;
+            getRGBAFromColor(color,&r,&g,&b,&a);
+            middle = (r+g+b)/3;
+            color = getColorFromRGBA(middle,middle,middle,a);
             im.set(i,j,color);
         }
     }
