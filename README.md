@@ -52,4 +52,8 @@ void write_png_file( const std::string &file_name_, const pngimage_t &image_);
 
 At file unit_pnglib.cpp
 
-(C) Tadeusz Puźniakowski, 2017
+## Autohrs
+
+Tadeusz Puźniakowski, 2017
+Marat Nagayev, 2022
+
